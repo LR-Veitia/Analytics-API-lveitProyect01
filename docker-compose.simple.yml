@@ -1,0 +1,57 @@
+services:
+  # TimescaleDB - Base de datos optimizada para time-series
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    container_name: analytics_timescaledb
+    environment:
+      POSTGRES_DB: analytics_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - timescale_data:/var/lib/postgresql/data
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d analytics_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - analytics_network
+
+  # FastAPI - Nuestra API principal
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.simple
+    container_name: analytics_api
+    environment:
+      # Database settings
+      DATABASE_URL: postgresql://postgres:postgres_password@timescaledb:5432/analytics_db
+      
+      # App settings
+      ENVIRONMENT: development
+      DEBUG: "true"
+      LOG_LEVEL: info
+    ports:
+      - "8000:8000"
+    volumes:
+      # Bind mount para hot-reload en desarrollo
+      - ./app:/app
+      - ./requirements.txt:/requirements.txt
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - analytics_network
+
+volumes:
+  timescale_data:
+    driver: local
+
+networks:
+  analytics_network:
+    driver: bridge

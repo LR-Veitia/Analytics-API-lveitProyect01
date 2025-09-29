@@ -1,0 +1,41 @@
+# Usar la imagen oficial de Jupyter con Python
+FROM jupyter/datascience-notebook:latest
+
+# Cambiar al usuario root para instalar paquetes
+USER root
+
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    postgresql-client \
+    vim \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Cambiar de vuelta al usuario jovyan
+USER jovyan
+
+# Instalar paquetes Python específicos para nuestro proyecto
+RUN pip install --no-cache-dir \
+    fastapi \
+    sqlmodel \
+    psycopg2-binary \
+    timescaledb-python \
+    redis \
+    pandas \
+    plotly \
+    seaborn \
+    matplotlib \
+    numpy \
+    scipy \
+    scikit-learn \
+    jupyter-lab-git \
+    ipywidgets
+
+# Configurar Jupyter Lab
+RUN jupyter lab build
+
+# Exponer puerto
+EXPOSE 8888
+
+# Comando por defecto
+CMD ["start-notebook.sh", "--NotebookApp.token=''", "--NotebookApp.password=''", "--NotebookApp.allow_root=True"]
