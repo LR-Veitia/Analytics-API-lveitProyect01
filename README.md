@@ -9,7 +9,11 @@ API de analítica construida con **FastAPI** y **PostgreSQL**, orientada a serie
 
 ## Estado actual
 
-* Todo lo que estaba en el **commit #3**.
+* Estructura básica del proyecto creada
+- Archivo `.env` configurado para desarrollo local
+- Dockerfile multi-stage listo para desarrollo y producción
+- Dependencias Python gestionadas con `requirements.txt`
+- Configuración para conexión a PostgreSQL y Redis en entorno local
 * **Jupyter Notebook** agregado y funcionando dentro del entorno Docker.
 * Primer notebook de prueba incluido (`notebooks/prueba.ipynb`).
 * **Routing básico** implementado en `main.py` (ejemplo de endpoint funcional).
