@@ -1,7 +1,7 @@
 # Usar la imagen oficial de Jupyter con Python
 FROM jupyter/datascience-notebook:latest
 
-# Cambiar al usuario root para instalar paquetes
+# Cambiar al usuario root para instalar paquetes del sistema
 USER root
 
 # Instalar dependencias del sistema
@@ -19,7 +19,6 @@ RUN pip install --no-cache-dir \
     fastapi \
     sqlmodel \
     psycopg2-binary \
-    timescaledb-python \
     redis \
     pandas \
     plotly \
@@ -28,14 +27,17 @@ RUN pip install --no-cache-dir \
     numpy \
     scipy \
     scikit-learn \
-    jupyter-lab-git \
+    jupyterlab-git \
     ipywidgets
 
-# Configurar Jupyter Lab
+# Habilitar la extensión de git para JupyterLab
+RUN jupyter server extension enable --py jupyterlab_git
+
+# Construir Jupyter Lab para habilitar extensiones
 RUN jupyter lab build
 
-# Exponer puerto
+# Exponer puerto de Jupyter Lab
 EXPOSE 8888
 
-# Comando por defecto
+# Comando por defecto para iniciar Jupyter Notebook
 CMD ["start-notebook.sh", "--NotebookApp.token=''", "--NotebookApp.password=''", "--NotebookApp.allow_root=True"]

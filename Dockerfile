@@ -1,71 +1,43 @@
-# Base stage - Python con dependencias comunes
-FROM python:3.13-slim as base
+# Usar la imagen oficial de Jupyter con Python
+FROM jupyter/datascience-notebook:latest
 
-# Variables de entorno para Python
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app \
-    PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
-
-# Crear usuario no-root
-RUN groupadd -r appuser && useradd -r -g appuser appuser
+# Cambiar al usuario root para instalar paquetes del sistema
+USER root
 
 # Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
-    gcc \
-    g++ \
     postgresql-client \
+    vim \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Crear directorio de trabajo
-WORKDIR /app
+# Cambiar de vuelta al usuario jovyan
+USER jovyan
 
-# Copiar requirements y instalar dependencias Python
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Instalar paquetes Python específicos para nuestro proyecto
+RUN pip install --no-cache-dir \
+    fastapi \
+    sqlmodel \
+    psycopg2-binary \
+    redis \
+    pandas \
+    plotly \
+    seaborn \
+    matplotlib \
+    numpy \
+    scipy \
+    scikit-learn \
+    jupyterlab-git \
+    ipywidgets
 
-# Development stage
-FROM base as development
+# Habilitar la extensión de git para JupyterLab
+RUN jupyter server extension enable --py jupyterlab_git
 
-# Instalar dependencias de desarrollo
-RUN pip install --no-cache-dir watchdog[watchmedo]
+# Construir Jupyter Lab para habilitar extensiones
+RUN jupyter lab build
 
-# Copiar código fuente
-COPY . .
+# Exponer puerto de Jupyter Lab
+EXPOSE 8888
 
-# Cambiar ownership al usuario no-root
-RUN chown -R appuser:appuser /app
-
-# Cambiar al usuario no-root
-USER appuser
-
-# Exponer puerto
-EXPOSE 8000
-
-# Comando por defecto (se puede override en docker-compose)
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
-
-# Production stage
-FROM base as production
-
-# Copiar solo el código necesario
-COPY app/ ./app/
-COPY main.py .
-
-# Cambiar ownership al usuario no-root
-RUN chown -R appuser:appuser /app
-
-# Cambiar al usuario no-root
-USER appuser
-
-# Exponer puerto
-EXPOSE 8000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
-
-# Comando para producción
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+# Comando por defecto para iniciar Jupyter Notebook
+CMD ["start-notebook.sh", "--NotebookApp.token=''", "--NotebookApp.password=''", "--NotebookApp.allow_root=True"]

@@ -1,6 +1,6 @@
-# Commit #2 - Estado actual del proyecto: Analytics API con FastAPI y PostgreSQL
+# Commit #3 - Estado actual del proyecto: Analytics API con FastAPI y PostgreSQL
 
-Este README corresponde al **commit #2** del proyecto.
+Este README corresponde al **commit #3** del proyecto.
 
 ## Descripción
 
@@ -14,6 +14,8 @@ API de analítica construida con **FastAPI** y **PostgreSQL** orientada a series
 - Dependencias Python gestionadas con `requirements.txt`
 - Configuración para conexión a PostgreSQL y Redis en entorno local
 - Comando de arranque con Uvicorn para desarrollo y producción
+- **Eliminados scripts y carpeta scripts, ahora todo el entorno se levanta con Docker Compose**
+- **Agregado archivo `.dockerignore` para optimizar el build de Docker**
 
 ## ¿Qué puede hacerse ya?
 
@@ -22,6 +24,10 @@ API de analítica construida con **FastAPI** y **PostgreSQL** orientada a series
 - Arrancar el servidor FastAPI (el archivo `main.py` debe estar presente)
 - Acceder a la documentación interactiva de FastAPI en `/docs` (si el endpoint existe en `main.py`)
 - Conectar con una base de datos PostgreSQL local (si está disponible)
+- **Levantar todos los servicios (API, TimescaleDB, Redis) con un solo comando:**
+  ```sh
+  docker compose up
+  ```
 
 ## ¿Qué no puede hacerse aún?
 
@@ -40,14 +46,13 @@ API de analítica construida con **FastAPI** y **PostgreSQL** orientada a series
 
 2. Configura el archivo `.env` con tus credenciales locales.
 
-3. Construye y ejecuta el contenedor Docker:
+3. Levanta el entorno completo con Docker Compose:
     ```sh
-    docker build -t analytics-api-dev --target development .
-    docker run --env-file .env -p 8000:8000 analytics-api-dev
+    docker compose up
     ```
 
 4. Accede a la API (si está implementada) en:
-    - [http://localhost:8000/docs](http://localhost:8000/docs)
+    - [http://localhost:8001/docs](http://localhost:8001/docs)
 
 ## Estructura del proyecto
 
@@ -56,7 +61,9 @@ API de analítica construida con **FastAPI** y **PostgreSQL** orientada a series
 ├── main.py             # Punto de entrada FastAPI
 ├── requirements.txt    # Dependencias Python
 ├── Dockerfile          # Imagen multi-stage
+├── compose.yaml        # Orquestación de servicios con Docker Compose
 ├── .env                # Variables de entorno
+├── .dockerignore       # Exclusión de archivos para el build de Docker
 └── README.md           # Este archivo
 ```
 
@@ -69,4 +76,4 @@ API de analítica construida con **FastAPI** y **PostgreSQL** orientada a series
 
 ---
 
-*Este README refleja el estado actual del proyecto en el commit #2. Actualizado conforme avances en el desarrollo.*
+*Este README refleja el estado actual del proyecto en el commit #3. Actualízalo conforme avances en el desarrollo.*

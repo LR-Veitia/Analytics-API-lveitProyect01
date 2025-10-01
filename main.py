@@ -1,7 +1,10 @@
 from fastapi import FastAPI
+#from typing import Union
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
+
+from app.api.events import router as event_router
 
 # Cargar variables de entorno
 load_dotenv()
@@ -11,6 +14,7 @@ app = FastAPI(
     description="API para análisis de datos web con TimescaleDB",
     version="1.0.0"
 )
+app.include_router(event_router, prefix="/api/events")
 
 # Configurar CORS
 cors_origins = os.getenv("BACKEND_CORS_ORIGINS", '["*"]')
